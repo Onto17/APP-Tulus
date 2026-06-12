@@ -1,0 +1,994 @@
+
+<style>
+  :root {
+    --t-bg: #0C0A08;
+    --t-surface: #141210;
+    --t-card: #1A1714;
+    --t-card2: #221F1B;
+    --t-border: rgba(255,255,255,0.07);
+    --t-primary: #E8622A;
+    --t-primary-soft: rgba(232,98,42,0.12);
+    --t-gold: #D4A843;
+    --t-gold-soft: rgba(212,168,67,0.12);
+    --t-success: #4ADE80;
+    --t-success-soft: rgba(74,222,128,0.12);
+    --t-text: #F0EDE8;
+    --t-text2: #9C9089;
+    --t-text3: #5C5550;
+    --t-info: #60A5FA;
+    --t-warn: #FBBF24;
+    --t-error: #F87171;
+    --phone-w: 340px;
+    --phone-h: 660px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body-wrap {
+    display: block;
+  }
+
+  .outer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 0 2rem;
+    gap: 1.25rem;
+    font-family: var(--font-sans);
+  }
+
+  .tab-bar {
+    display: flex;
+    gap: 6px;
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 4px;
+  }
+  .tab-btn {
+    padding: 6px 14px;
+    border-radius: var(--border-radius-md);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    font-weight: 400;
+    transition: all 0.15s;
+  }
+  .tab-btn.active {
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+    font-weight: 500;
+    border: 0.5px solid var(--color-border-secondary);
+  }
+
+  .phone-frame {
+    width: var(--phone-w);
+    height: var(--phone-h);
+    background: var(--t-bg);
+    border-radius: 36px;
+    border: 2px solid rgba(255,255,255,0.12);
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.55);
+  }
+
+  .status-bar {
+    height: 44px;
+    background: var(--t-bg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    flex-shrink: 0;
+  }
+  .status-time { color: var(--t-text); font-size: 13px; font-weight: 600; }
+  .status-icons { display: flex; gap: 5px; align-items: center; }
+  .status-icons i { color: var(--t-text); font-size: 14px; }
+
+  .screen {
+    height: calc(var(--phone-h) - 44px - 72px);
+    overflow-y: auto;
+    background: var(--t-bg);
+    scrollbar-width: none;
+  }
+  .screen::-webkit-scrollbar { display: none; }
+
+  .bottom-nav {
+    height: 72px;
+    background: var(--t-surface);
+    border-top: 0.5px solid var(--t-border);
+    display: flex;
+    align-items: stretch;
+    flex-shrink: 0;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    background: none;
+    border: none;
+    color: var(--t-text3);
+  }
+  .nav-item.active { color: var(--t-primary); }
+  .nav-item i { font-size: 22px; }
+  .nav-item span { font-size: 10px; font-weight: 400; }
+  .nav-item.active span { font-weight: 600; }
+  .nav-fab {
+    flex: 0 0 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .fab-btn {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--t-primary);
+    border: none;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    margin-bottom: 6px;
+    box-shadow: 0 4px 16px rgba(232,98,42,0.45);
+  }
+  .fab-btn i { color: #fff; font-size: 24px; }
+
+  /* ── Content primitives ── */
+  .px { padding: 0 16px; }
+  .section-header { font-size: 15px; font-weight: 500; color: var(--t-text); margin-bottom: 10px; }
+  .muted { color: var(--t-text2); font-size: 12px; }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600;
+  }
+  .pill-success { background: var(--t-success-soft); color: var(--t-success); }
+  .pill-primary { background: var(--t-primary-soft); color: var(--t-primary); }
+  .pill-gold    { background: var(--t-gold-soft); color: var(--t-gold); }
+  .pill-info    { background: rgba(96,165,250,0.12); color: var(--t-info); }
+  .pill-warn    { background: rgba(251,191,36,0.12); color: var(--t-warn); }
+
+  /* ── Home screen ── */
+  .home-appbar {
+    padding: 12px 16px 8px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .home-logo { font-size: 22px; font-weight: 700; font-style: italic; color: var(--t-primary); }
+  .home-sub  { font-size: 11px; color: var(--t-text2); }
+  .notif-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--t-card); border: 0.5px solid var(--t-border);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; cursor: pointer;
+  }
+  .notif-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--t-primary);
+    position: absolute; top: 6px; right: 6px;
+  }
+
+  .search-bar {
+    margin: 8px 16px;
+    background: var(--t-card);
+    border: 0.5px solid var(--t-border);
+    border-radius: 12px;
+    display: flex; align-items: center; gap: 8px;
+    padding: 0 12px;
+    height: 40px;
+  }
+  .search-bar input {
+    background: none; border: none; outline: none;
+    color: var(--t-text2); font-size: 13px; flex: 1;
+    caret-color: var(--t-primary);
+  }
+  .search-bar i { color: var(--t-text3); font-size: 16px; }
+
+  .cat-row {
+    display: flex; gap: 8px; overflow-x: auto;
+    padding: 6px 16px 6px; scrollbar-width: none;
+  }
+  .cat-row::-webkit-scrollbar { display: none; }
+  .cat-chip {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 5px;
+    padding: 6px 12px; border-radius: 100px;
+    border: 0.5px solid var(--t-border);
+    background: var(--t-card);
+    font-size: 12px; color: var(--t-text2); cursor: pointer;
+    white-space: nowrap; transition: all 0.15s;
+  }
+  .cat-chip.active {
+    background: var(--t-primary-soft);
+    border-color: var(--t-primary);
+    color: var(--t-primary);
+    font-weight: 600;
+  }
+
+  .mission-card {
+    margin: 6px 16px;
+    background: var(--t-card);
+    border: 0.5px solid var(--t-border);
+    border-radius: 16px;
+    padding: 14px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .mission-card:hover { border-color: rgba(255,255,255,0.15); }
+  .mc-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .mc-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--t-primary-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; color: var(--t-primary); flex-shrink: 0;
+  }
+  .mc-name { font-size: 12px; color: var(--t-text2); }
+  .mc-time { font-size: 11px; color: var(--t-text3); margin-left: auto; }
+  .mc-title { font-size: 14px; font-weight: 500; color: var(--t-text); margin-bottom: 6px; line-height: 1.4; }
+  .mc-desc  { font-size: 12px; color: var(--t-text2); line-height: 1.5; margin-bottom: 10px; }
+  .mc-foot  { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .mc-gift-row { display: flex; gap: 4px; align-items: center; margin-left: auto; }
+  .mc-gift { font-size: 16px; }
+  .mc-val   { font-size: 13px; font-weight: 700; color: var(--t-gold); }
+
+  /* ── Wallet ── */
+  .wallet-appbar {
+    padding: 12px 16px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .balance-card {
+    margin: 0 16px 16px;
+    background: linear-gradient(135deg, #1E1A32 0%, #2D1F4E 100%);
+    border: 0.5px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 20px;
+  }
+  .balance-label { font-size: 12px; color: var(--t-text2); }
+  .balance-amount { font-size: 32px; font-weight: 800; color: #fff; letter-spacing: -1px; margin: 6px 0 3px; }
+  .balance-locked { font-size: 11px; color: var(--t-text3); }
+  .balance-stats { display: flex; gap: 16px; margin: 16px 0; }
+  .b-stat-label { font-size: 11px; color: var(--t-text2); }
+  .b-stat-val   { font-size: 13px; font-weight: 600; color: var(--t-text); }
+  .balance-actions { display: flex; gap: 8px; margin-top: 4px; }
+  .b-btn {
+    flex: 1; height: 40px; border-radius: 10px; border: none;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .b-btn-primary { background: var(--t-primary); color: #fff; }
+  .b-btn-outline { background: var(--t-card2); color: var(--t-text); border: 0.5px solid var(--t-border); }
+
+  .gift-grid { display: flex; gap: 6px; padding: 0 16px 16px; }
+  .gift-item {
+    flex: 1; background: var(--t-card);
+    border: 0.5px solid var(--t-border); border-radius: 12px;
+    padding: 10px 6px; text-align: center;
+  }
+  .gift-emoji { font-size: 22px; }
+  .gift-count { font-size: 15px; font-weight: 800; color: var(--t-text); margin-top: 2px; }
+  .gift-name  { font-size: 10px; color: var(--t-text2); }
+
+  .tx-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px; border-bottom: 0.5px solid var(--t-border);
+  }
+  .tx-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .tx-icon i { font-size: 18px; }
+  .tx-icon-in  { background: var(--t-success-soft); color: var(--t-success); }
+  .tx-icon-out { background: var(--t-primary-soft); color: var(--t-primary); }
+  .tx-icon-lock { background: var(--t-gold-soft); color: var(--t-gold); }
+  .tx-title  { font-size: 13px; font-weight: 500; color: var(--t-text); }
+  .tx-sub    { font-size: 11px; color: var(--t-text2); }
+  .tx-amount { margin-left: auto; font-size: 14px; font-weight: 700; }
+  .tx-plus  { color: var(--t-success); }
+  .tx-minus { color: var(--t-error); }
+
+  /* ── Profile ── */
+  .profile-header {
+    padding: 16px 16px 0;
+    text-align: center;
+  }
+  .prof-avatar {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--t-primary), #FF9A6C);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; font-weight: 700; color: #fff;
+    margin: 0 auto 10px;
+    border: 3px solid var(--t-card);
+  }
+  .prof-name  { font-size: 18px; font-weight: 600; color: var(--t-text); }
+  .prof-handle { font-size: 13px; color: var(--t-text2); margin-top: 2px; }
+  .prof-stats { display: flex; justify-content: center; gap: 28px; margin: 16px 0; }
+  .p-stat { text-align: center; }
+  .p-stat-val  { font-size: 18px; font-weight: 700; color: var(--t-text); }
+  .p-stat-lbl  { font-size: 11px; color: var(--t-text2); }
+
+  .trust-card {
+    margin: 0 16px 16px;
+    background: var(--t-card);
+    border: 0.5px solid var(--t-border); border-radius: 16px; padding: 14px;
+  }
+  .trust-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .trust-score { font-size: 28px; font-weight: 800; color: var(--t-gold); }
+  .trust-tier  { font-size: 12px; color: var(--t-gold); }
+  .trust-bar-bg { height: 6px; background: var(--t-card2); border-radius: 100px; overflow: hidden; }
+  .trust-bar-fill { height: 100%; background: var(--t-gold); border-radius: 100px; }
+
+  .menu-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 16px; border-bottom: 0.5px solid var(--t-border);
+    cursor: pointer;
+  }
+  .menu-icon {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: var(--t-card);
+    border: 0.5px solid var(--t-border);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .menu-icon i { font-size: 17px; color: var(--t-text2); }
+  .menu-label { font-size: 14px; color: var(--t-text); }
+  .menu-arrow { margin-left: auto; }
+  .menu-arrow i { font-size: 16px; color: var(--t-text3); }
+
+  /* ── Mission detail ── */
+  .detail-hero {
+    height: 180px; background: var(--t-card);
+    position: relative; overflow: hidden;
+  }
+  .detail-hero-emoji {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    font-size: 72px; opacity: 0.3;
+  }
+  .detail-back {
+    position: absolute; top: 12px; left: 12px;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(12,10,8,0.7);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border: none;
+  }
+  .detail-back i { color: var(--t-text); font-size: 18px; }
+  .detail-body { padding: 16px; }
+  .detail-cat { margin-bottom: 8px; }
+  .detail-title { font-size: 18px; font-weight: 600; color: var(--t-text); line-height: 1.4; margin-bottom: 8px; }
+  .detail-requester { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+  .detail-desc { font-size: 13px; color: var(--t-text2); line-height: 1.6; margin-bottom: 14px; }
+  .criteria-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    margin-bottom: 8px; font-size: 13px; color: var(--t-text2);
+  }
+  .criteria-check { color: var(--t-success); font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+  .gift-row-detail {
+    display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .gift-pill-detail {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--t-gold-soft); border-radius: 100px;
+    padding: 6px 12px;
+  }
+  .gift-pill-emoji { font-size: 18px; }
+  .gift-pill-text  { font-size: 13px; color: var(--t-gold); font-weight: 600; }
+  .detail-cta {
+    width: 100%; height: 48px; border-radius: 14px; border: none;
+    background: var(--t-primary); color: #fff;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+
+  /* ── Create mission sheet ── */
+  .create-header { padding: 16px; border-bottom: 0.5px solid var(--t-border); }
+  .create-step-indicator {
+    display: flex; gap: 4px; margin-bottom: 14px;
+  }
+  .step-dot {
+    height: 4px; flex: 1; border-radius: 100px;
+    background: var(--t-card2);
+  }
+  .step-dot.done { background: var(--t-primary); }
+  .create-title { font-size: 16px; font-weight: 600; color: var(--t-text); }
+  .create-body { padding: 14px 16px; }
+  .field-label { font-size: 12px; color: var(--t-text2); margin-bottom: 6px; font-weight: 500; }
+  .field-input {
+    width: 100%; background: var(--t-card); border: 0.5px solid var(--t-border);
+    border-radius: 10px; color: var(--t-text); padding: 10px 12px;
+    font-size: 13px; outline: none; font-family: var(--font-sans);
+  }
+  .field-input::placeholder { color: var(--t-text3); }
+  .field-group { margin-bottom: 14px; }
+  .hadiah-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+  .hadiah-chip {
+    display: flex; flex-direction: column; align-items: center;
+    background: var(--t-card); border: 1.5px solid var(--t-border);
+    border-radius: 12px; padding: 10px 12px; cursor: pointer;
+    min-width: 58px; transition: all 0.15s;
+  }
+  .hadiah-chip.sel { border-color: var(--t-gold); background: var(--t-gold-soft); }
+  .hadiah-chip .he { font-size: 20px; }
+  .hadiah-chip .hn { font-size: 10px; color: var(--t-text2); margin-top: 3px; }
+  .hadiah-chip .hp { font-size: 10px; color: var(--t-text3); }
+  .hadiah-chip.sel .hn { color: var(--t-gold); }
+
+  .create-footer {
+    padding: 12px 16px;
+    border-top: 0.5px solid var(--t-border);
+    display: flex; gap: 8px;
+  }
+
+  .hidden { display: none !important; }
+</style>
+
+<div class="outer">
+  <h2 class="sr-only">Tulus app — interactive mobile UI preview with Home, Mission Detail, Wallet, Profile, and Create Mission screens.</h2>
+
+  <div class="tab-bar" role="tablist">
+    <button class="tab-btn active" onclick="switchTab('home')" role="tab">Feed</button>
+    <button class="tab-btn" onclick="switchTab('detail')" role="tab">Detail Misi</button>
+    <button class="tab-btn" onclick="switchTab('create')" role="tab">Buat Misi</button>
+    <button class="tab-btn" onclick="switchTab('wallet')" role="tab">Dompet</button>
+    <button class="tab-btn" onclick="switchTab('profile')" role="tab">Profil</button>
+  </div>
+
+  <div class="phone-frame">
+    <div class="status-bar">
+      <span class="status-time">09:41</span>
+      <div class="status-icons">
+        <i class="ti ti-wifi" aria-hidden="true"></i>
+        <i class="ti ti-signal-4g" aria-hidden="true"></i>
+        <i class="ti ti-battery" aria-hidden="true"></i>
+      </div>
+    </div>
+
+    <!-- ── HOME ── -->
+    <div class="screen" id="screen-home">
+      <div class="home-appbar">
+        <div>
+          <div class="home-sub">Selamat datang 👋</div>
+          <div class="home-logo">Tulus</div>
+        </div>
+        <div class="notif-btn" onclick="switchTab('home')">
+          <i class="ti ti-bell" style="font-size:18px;color:var(--t-text)" aria-hidden="true"></i>
+          <div class="notif-dot"></div>
+        </div>
+      </div>
+
+      <div class="search-bar">
+        <i class="ti ti-search" aria-hidden="true"></i>
+        <input type="text" placeholder="Cari misi di sekitarmu…" readonly>
+      </div>
+
+      <div class="cat-row" id="cat-row">
+        <div class="cat-chip active" onclick="selectCat(this,'all')">🌟 Semua</div>
+        <div class="cat-chip" onclick="selectCat(this,'info')">🗺️ Info</div>
+        <div class="cat-chip" onclick="selectCat(this,'creative')">🎵 Kreatif</div>
+        <div class="cat-chip" onclick="selectCat(this,'delivery')">📦 Antar</div>
+        <div class="cat-chip" onclick="selectCat(this,'goods')">🔧 Barang</div>
+        <div class="cat-chip" onclick="selectCat(this,'doc')">📸 Foto</div>
+        <div class="cat-chip" onclick="selectCat(this,'help')">🆘 Bantuan</div>
+      </div>
+
+      <div style="padding: 8px 16px 4px; font-size: 12px; color: var(--t-text2);">24 misi aktif di sekitarmu</div>
+
+      <div class="mission-card" onclick="switchTab('detail')">
+        <div class="mc-head">
+          <div class="mc-avatar">AB</div>
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--t-text);">Andi B.</div>
+            <div class="mc-name">⭐ 4.9 · Terpercaya</div>
+          </div>
+          <div class="mc-time">2 mnt lalu</div>
+        </div>
+        <div class="mc-title">"Kondisi jalan tol Waru–Sidoarjo arah Surabaya sekarang gimana?"</div>
+        <div class="mc-desc">Mau berangkat tapi takut macet. Butuh info real-time dari yang lagi di sana. Foto atau video singkat sangat membantu 🙏</div>
+        <div class="mc-foot">
+          <span class="pill pill-primary">🗺️ Info Lokal</span>
+          <span class="pill" style="background:var(--t-card2);color:var(--t-text2);">📍 Waru</span>
+          <div class="mc-gift-row">
+            <span class="mc-gift">🪙</span><span class="mc-gift">🪙</span><span class="mc-gift">🪙</span>
+            <span class="mc-val">Rp 2.550</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mission-card" onclick="switchTab('detail')">
+        <div class="mc-head">
+          <div class="mc-avatar" style="background:rgba(74,222,128,0.12);color:var(--t-success);">SR</div>
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--t-text);">Siti R.</div>
+            <div class="mc-name">⭐ 4.7 · Verified</div>
+          </div>
+          <div class="mc-time">15 mnt lalu</div>
+        </div>
+        <div class="mc-title">"Tolong ambilkan paket di JNE Rungkut Industri — saya di kantor sampai jam 6"</div>
+        <div class="mc-desc">Paket kecil, berisi buku. Sudah bayar ongkir. Helper tinggal tunjukkan kode & foto KTP saya (akan dikirim via chat).</div>
+        <div class="mc-foot">
+          <span class="pill pill-success">📦 Jasa & Antar</span>
+          <span class="pill" style="background:var(--t-card2);color:var(--t-text2);">📍 Rungkut</span>
+          <div class="mc-gift-row">
+            <span class="mc-gift">🌸</span><span class="mc-gift">🌸</span>
+            <span class="mc-val">Rp 8.400</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mission-card" onclick="switchTab('detail')">
+        <div class="mc-head">
+          <div class="mc-avatar" style="background:rgba(96,165,250,0.12);color:var(--t-info);">RH</div>
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--t-text);">Rizky H.</div>
+            <div class="mc-name">⭐ 5.0 · Legenda 🏆</div>
+          </div>
+          <div class="mc-time">1 jam lalu</div>
+        </div>
+        <div class="mc-title">"Ada yang punya resistor 10kΩ 1/4W? Butuh 5 biji buat proyek malam ini"</div>
+        <div class="mc-desc">Tinggal di area Sukolilo/Gebang. Bisa COD atau titip Gojek. Bayar harga + ongkos kirim tentu nya!</div>
+        <div class="mc-foot">
+          <span class="pill pill-info">🔧 Barang</span>
+          <span class="pill" style="background:var(--t-card2);color:var(--t-text2);">📍 Sukolilo</span>
+          <div class="mc-gift-row">
+            <span class="mc-gift">👕</span>
+            <span class="mc-val">Rp 21.000</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mission-card" onclick="switchTab('detail')">
+        <div class="mc-head">
+          <div class="mc-avatar" style="background:rgba(251,191,36,0.12);color:var(--t-warn);">DM</div>
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--t-text);">Dewi M.</div>
+            <div class="mc-name">⭐ 4.8 · Ahli</div>
+          </div>
+          <div class="mc-time">3 jam lalu</div>
+        </div>
+        <div class="mc-title">"Foto kondisi warung makan Bu Tini di Jl. Kedung Baruk — masih buka nggak?"</div>
+        <div class="mc-desc">Mau makan siang di sana tapi nggak bisa telepon. Kalau bisa minta foto tampak depan + menu hari ini.</div>
+        <div class="mc-foot">
+          <span class="pill pill-gold">📸 Dokumentasi</span>
+          <span class="pill" style="background:var(--t-card2);color:var(--t-text2);">📍 Kedung Baruk</span>
+          <div class="mc-gift-row">
+            <span class="mc-gift">🪙</span><span class="mc-gift">🌸</span>
+            <span class="mc-val">Rp 5.000</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:16px"></div>
+    </div>
+
+    <!-- ── MISSION DETAIL ── -->
+    <div class="screen hidden" id="screen-detail">
+      <div class="detail-hero">
+        <div class="detail-hero-emoji">🗺️</div>
+        <button class="detail-back" onclick="switchTab('home')">
+          <i class="ti ti-arrow-left" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="detail-body">
+        <div class="detail-cat"><span class="pill pill-primary">🗺️ Info Lokal</span></div>
+        <div class="detail-title">"Kondisi jalan tol Waru–Sidoarjo arah Surabaya sekarang gimana?"</div>
+        <div class="detail-requester">
+          <div class="mc-avatar" style="width:28px;height:28px;font-size:10px;">AB</div>
+          <div style="font-size:12px;color:var(--t-text2);">Andi B. &nbsp;·&nbsp; <span style="color:var(--t-success);">⭐ 4.9</span> &nbsp;·&nbsp; 48 misi dibuat</div>
+        </div>
+        <div class="detail-desc">Mau berangkat tapi takut macet. Butuh info real-time dari yang lagi di sana atau baru lewat. Foto atau video singkat kondisi jalan sangat membantu. Kalau bisa sertakan estimasi waktu tempuh juga ya!</div>
+
+        <div class="section-header">Kriteria Sukses</div>
+        <div style="margin-bottom:14px">
+          <div class="criteria-item"><i class="ti ti-circle-check criteria-check" aria-hidden="true"></i><span>Foto/video kondisi jalan terbaru (maks. 30 mnt lalu)</span></div>
+          <div class="criteria-item"><i class="ti ti-circle-check criteria-check" aria-hidden="true"></i><span>Estimasi waktu tempuh Waru → Surabaya</span></div>
+          <div class="criteria-item"><i class="ti ti-circle-check criteria-check" aria-hidden="true"></i><span>Keterangan apakah ada insiden/kecelakaan</span></div>
+        </div>
+
+        <div class="section-header">Hadiah</div>
+        <div class="gift-row-detail">
+          <div class="gift-pill-detail"><span class="gift-pill-emoji">🪙</span><span class="gift-pill-text">3× Koin · Rp 2.550</span></div>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-bottom:16px;">
+          <div style="flex:1;background:var(--t-card);border:0.5px solid var(--t-border);border-radius:10px;padding:10px;text-align:center;">
+            <div style="font-size:11px;color:var(--t-text2);">Deadline</div>
+            <div style="font-size:13px;font-weight:600;color:var(--t-text);">2 jam lagi</div>
+          </div>
+          <div style="flex:1;background:var(--t-card);border:0.5px solid var(--t-border);border-radius:10px;padding:10px;text-align:center;">
+            <div style="font-size:11px;color:var(--t-text2);">Helper</div>
+            <div style="font-size:13px;font-weight:600;color:var(--t-text);">0 / 1</div>
+          </div>
+          <div style="flex:1;background:var(--t-card);border:0.5px solid var(--t-border);border-radius:10px;padding:10px;text-align:center;">
+            <div style="font-size:11px;color:var(--t-text2);">Respons</div>
+            <div style="font-size:13px;font-weight:600;color:var(--t-text);">2</div>
+          </div>
+        </div>
+
+        <button class="detail-cta" onclick="switchTab('create')">
+          <i class="ti ti-hand-stop" aria-hidden="true"></i>
+          Bantu Sekarang
+        </button>
+      </div>
+    </div>
+
+    <!-- ── CREATE MISSION ── -->
+    <div class="screen hidden" id="screen-create">
+      <div class="create-header">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+          <button onclick="switchTab('home')" style="background:none;border:none;color:var(--t-text2);cursor:pointer;padding:0">
+            <i class="ti ti-x" style="font-size:20px" aria-hidden="true"></i>
+          </button>
+          <span style="font-size:15px;color:var(--t-text2);">Buat Misi</span>
+        </div>
+        <div class="create-step-indicator" id="step-indicator">
+          <div class="step-dot done" id="sd1"></div>
+          <div class="step-dot" id="sd2"></div>
+          <div class="step-dot" id="sd3"></div>
+          <div class="step-dot" id="sd4"></div>
+        </div>
+        <div class="create-title" id="step-title">Deskripsi Misi</div>
+        <div style="font-size:11px;color:var(--t-text2);margin-top:3px;" id="step-sub">Langkah 1 dari 4</div>
+      </div>
+
+      <div class="create-body" id="step-body-1">
+        <div class="field-group">
+          <div class="field-label">Judul misi *</div>
+          <input class="field-input" type="text" placeholder="Cth: Foto menu warung Bu Tini di Kedung Baruk">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Deskripsi lengkap *</div>
+          <textarea class="field-input" rows="3" placeholder="Jelaskan apa yang kamu butuhkan, konteks, dan cara helper bisa membantu…" style="resize:none"></textarea>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Kategori</div>
+          <div class="cat-row" style="padding:0;flex-wrap:wrap;gap:6px;">
+            <div class="cat-chip active" style="font-size:11px;" onclick="selectCat(this,'x')">🗺️ Info Lokal</div>
+            <div class="cat-chip" style="font-size:11px;" onclick="selectCat(this,'x')">🎵 Kreatif</div>
+            <div class="cat-chip" style="font-size:11px;" onclick="selectCat(this,'x')">📦 Jasa & Antar</div>
+            <div class="cat-chip" style="font-size:11px;" onclick="selectCat(this,'x')">🔧 Barang</div>
+            <div class="cat-chip" style="font-size:11px;" onclick="selectCat(this,'x')">📸 Dokumentasi</div>
+            <div class="cat-chip" style="font-size:11px;" onclick="selectCat(this,'x')">🆘 Bantuan Fisik</div>
+          </div>
+        </div>
+      </div>
+      <div class="create-body hidden" id="step-body-2">
+        <div class="field-group">
+          <div class="field-label">Kriteria sukses (opsional)</div>
+          <input class="field-input" type="text" placeholder="Cth: Foto tampak depan warung" style="margin-bottom:6px;">
+          <input class="field-input" type="text" placeholder="Tambah kriteria lagi…" style="margin-bottom:6px;">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Tipe verifikasi</div>
+          <div style="display:flex;gap:6px;">
+            <div class="cat-chip active" style="font-size:11px;flex:1;justify-content:center;" onclick="selectCat(this,'v')">📋 Manual</div>
+            <div class="cat-chip" style="font-size:11px;flex:1;justify-content:center;" onclick="selectCat(this,'v')">🤖 AI Auto</div>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Deadline (opsional)</div>
+          <input class="field-input" type="text" placeholder="Cth: 3 jam dari sekarang">
+        </div>
+      </div>
+      <div class="create-body hidden" id="step-body-3">
+        <div class="field-group">
+          <div class="field-label">Pilih hadiah</div>
+          <div class="hadiah-grid">
+            <div class="hadiah-chip sel" onclick="toggleHadiah(this)">
+              <span class="he">🪙</span>
+              <span class="hn">Koin</span>
+              <span class="hp">Rp 1rb</span>
+            </div>
+            <div class="hadiah-chip" onclick="toggleHadiah(this)">
+              <span class="he">🌸</span>
+              <span class="hn">Bunga</span>
+              <span class="hp">Rp 5rb</span>
+            </div>
+            <div class="hadiah-chip" onclick="toggleHadiah(this)">
+              <span class="he">👕</span>
+              <span class="hn">Baju</span>
+              <span class="hp">Rp 25rb</span>
+            </div>
+            <div class="hadiah-chip" onclick="toggleHadiah(this)">
+              <span class="he">💎</span>
+              <span class="hn">Permata</span>
+              <span class="hp">Rp 50rb</span>
+            </div>
+            <div class="hadiah-chip" onclick="toggleHadiah(this)">
+              <span class="he">🏆</span>
+              <span class="hn">Trofi</span>
+              <span class="hp">Rp 150rb</span>
+            </div>
+          </div>
+        </div>
+        <div style="background:var(--t-gold-soft);border:0.5px solid var(--t-gold);border-radius:12px;padding:12px;margin-top:8px;">
+          <div style="font-size:12px;color:var(--t-gold);font-weight:600;margin-bottom:4px;">Estimasi biaya</div>
+          <div style="font-size:20px;font-weight:800;color:var(--t-gold);" id="cost-est">Rp 1.000</div>
+          <div style="font-size:11px;color:var(--t-text2);margin-top:2px;">Platform fee 15% sudah termasuk · Escrow terkunci saat misi tayang</div>
+        </div>
+      </div>
+      <div class="create-body hidden" id="step-body-4">
+        <div style="text-align:center;padding:20px 0 16px;">
+          <div style="font-size:48px;margin-bottom:12px;">🎉</div>
+          <div style="font-size:16px;font-weight:600;color:var(--t-text);margin-bottom:6px;">Misi siap ditayangkan!</div>
+          <div style="font-size:12px;color:var(--t-text2);line-height:1.6;">Setelah publish, Rp 1.000 akan dikunci di escrow. Dana cair ke helper setelah kamu setujui bukti yang dikirim.</div>
+        </div>
+        <div style="background:var(--t-card);border:0.5px solid var(--t-border);border-radius:14px;padding:14px;margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+            <span style="font-size:12px;color:var(--t-text2);">Judul</span>
+            <span style="font-size:12px;color:var(--t-text);font-weight:500;max-width:180px;text-align:right;">Info jalan tol Waru–Sidoarjo</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+            <span style="font-size:12px;color:var(--t-text2);">Kategori</span>
+            <span style="font-size:12px;color:var(--t-text);">🗺️ Info Lokal</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+            <span style="font-size:12px;color:var(--t-text2);">Hadiah</span>
+            <span style="font-size:12px;color:var(--t-gold);font-weight:600;">🪙 1× Koin</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="font-size:12px;color:var(--t-text2);">Escrow</span>
+            <span style="font-size:12px;color:var(--t-success);font-weight:600;">Rp 1.000</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="create-footer">
+        <button id="btn-back-step" onclick="prevStep()" style="flex:0 0 80px;height:44px;border-radius:12px;background:var(--t-card);border:0.5px solid var(--t-border);color:var(--t-text2);cursor:pointer;font-size:13px;">Kembali</button>
+        <button id="btn-next-step" onclick="nextStep()" style="flex:1;height:44px;border-radius:12px;background:var(--t-primary);border:none;color:#fff;font-weight:600;font-size:14px;cursor:pointer;">Lanjut →</button>
+      </div>
+    </div>
+
+    <!-- ── WALLET ── -->
+    <div class="screen hidden" id="screen-wallet">
+      <div class="wallet-appbar">
+        <span style="font-size:17px;font-weight:600;color:var(--t-text);">Dompet</span>
+        <i class="ti ti-history" style="font-size:20px;color:var(--t-text2);cursor:pointer" aria-hidden="true"></i>
+      </div>
+      <div class="balance-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div class="balance-label">Saldo Utama</div>
+          <span class="pill pill-success"><i class="ti ti-circle" style="font-size:6px" aria-hidden="true"></i> Aktif</span>
+        </div>
+        <div class="balance-amount">Rp 247.500</div>
+        <div class="balance-locked">+ Rp 18.000 terkunci di escrow</div>
+        <div class="balance-stats">
+          <div>
+            <div class="b-stat-label">Total Diterima</div>
+            <div class="b-stat-val">Rp 1,2jt</div>
+          </div>
+          <div style="width:0.5px;background:var(--t-border);"></div>
+          <div>
+            <div class="b-stat-label">Dicairkan</div>
+            <div class="b-stat-val">Rp 950rb</div>
+          </div>
+        </div>
+        <div class="balance-actions">
+          <button class="b-btn b-btn-primary"><i class="ti ti-plus" aria-hidden="true"></i> Top Up</button>
+          <button class="b-btn b-btn-outline"><i class="ti ti-arrow-up" aria-hidden="true"></i> Cairkan</button>
+        </div>
+      </div>
+
+      <div style="padding: 0 16px 10px;" class="section-header">Hadiah Terkumpul</div>
+      <div class="gift-grid">
+        <div class="gift-item"><div class="gift-emoji">🪙</div><div class="gift-count">42</div><div class="gift-name">Koin</div></div>
+        <div class="gift-item"><div class="gift-emoji">🌸</div><div class="gift-count">8</div><div class="gift-name">Bunga</div></div>
+        <div class="gift-item"><div class="gift-emoji">💎</div><div class="gift-count">2</div><div class="gift-name">Permata</div></div>
+        <div class="gift-item"><div class="gift-emoji">👕</div><div class="gift-count">1</div><div class="gift-name">Baju</div></div>
+      </div>
+      <div style="margin: 0 16px 20px;">
+        <button style="width:100%;height:40px;border-radius:12px;background:transparent;border:0.5px solid var(--t-primary);color:var(--t-primary);font-size:13px;font-weight:600;cursor:pointer;">
+          Konversi Hadiah ke Saldo →
+        </button>
+      </div>
+
+      <div style="padding: 0 16px 10px;" class="section-header">Transaksi Terakhir</div>
+
+      <div class="tx-item">
+        <div class="tx-icon tx-icon-in"><i class="ti ti-arrow-down-left" aria-hidden="true"></i></div>
+        <div>
+          <div class="tx-title">Misi selesai — Foto warung Bu Tini</div>
+          <div class="tx-sub">Hari ini · 09:15</div>
+        </div>
+        <div class="tx-amount tx-plus">+Rp 4.200</div>
+      </div>
+      <div class="tx-item">
+        <div class="tx-icon tx-icon-lock"><i class="ti ti-lock" aria-hidden="true"></i></div>
+        <div>
+          <div class="tx-title">Escrow dikunci — Misi ambil paket</div>
+          <div class="tx-sub">Kemarin · 14:30</div>
+        </div>
+        <div class="tx-amount" style="color:var(--t-warn);">-Rp 18.000</div>
+      </div>
+      <div class="tx-item">
+        <div class="tx-icon tx-icon-in"><i class="ti ti-arrow-down-left" aria-hidden="true"></i></div>
+        <div>
+          <div class="tx-title">Misi selesai — Info jalan tol</div>
+          <div class="tx-sub">Kemarin · 10:02</div>
+        </div>
+        <div class="tx-amount tx-plus">+Rp 2.550</div>
+      </div>
+      <div class="tx-item">
+        <div class="tx-icon tx-icon-out"><i class="ti ti-arrow-up-right" aria-hidden="true"></i></div>
+        <div>
+          <div class="tx-title">Pencairan ke BCA ***1234</div>
+          <div class="tx-sub">3 hari lalu</div>
+        </div>
+        <div class="tx-amount tx-minus">-Rp 200.000</div>
+      </div>
+      <div class="tx-item">
+        <div class="tx-icon tx-icon-in"><i class="ti ti-arrow-down-left" aria-hidden="true"></i></div>
+        <div>
+          <div class="tx-title">Misi selesai — Beli resistor 10kΩ</div>
+          <div class="tx-sub">4 hari lalu</div>
+        </div>
+        <div class="tx-amount tx-plus">+Rp 21.000</div>
+      </div>
+      <div style="height:8px"></div>
+    </div>
+
+    <!-- ── PROFILE ── -->
+    <div class="screen hidden" id="screen-profile">
+      <div class="profile-header">
+        <div class="prof-avatar">AR</div>
+        <div class="prof-name">Arif Ramadhan</div>
+        <div class="prof-handle">@arifr · Verified ✅</div>
+        <div class="prof-stats">
+          <div class="p-stat"><div class="p-stat-val">47</div><div class="p-stat-lbl">Misi Bantu</div></div>
+          <div class="p-stat"><div class="p-stat-val">12</div><div class="p-stat-lbl">Misi Buat</div></div>
+          <div class="p-stat"><div class="p-stat-val">4.9</div><div class="p-stat-lbl">Rating</div></div>
+        </div>
+      </div>
+
+      <div class="trust-card">
+        <div class="trust-top">
+          <div>
+            <div style="font-size:11px;color:var(--t-text2);margin-bottom:3px;">Trust Score</div>
+            <div class="trust-score">78 <span style="font-size:14px;">/ 100</span></div>
+          </div>
+          <div style="text-align:right;">
+            <span class="pill pill-gold">🏅 Ahli</span>
+            <div style="font-size:10px;color:var(--t-text2);margin-top:6px;">12 poin menuju Legenda</div>
+          </div>
+        </div>
+        <div class="trust-bar-bg">
+          <div class="trust-bar-fill" style="width:78%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:11px;color:var(--t-text2);">
+          <span>Penyelesaian: <strong style="color:var(--t-text)">94%</strong></span>
+          <span>Dispute menang: <strong style="color:var(--t-text)">3/3</strong></span>
+          <span>Respons cepat ⚡</span>
+        </div>
+      </div>
+
+      <div style="padding: 0 16px 8px;" class="section-header">Menu</div>
+
+      <div class="menu-item">
+        <div class="menu-icon"><i class="ti ti-clipboard-list" aria-hidden="true"></i></div>
+        <div class="menu-label">Misi Saya</div>
+        <div class="menu-arrow"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-icon"><i class="ti ti-id-badge" aria-hidden="true"></i></div>
+        <div class="menu-label">Verifikasi KYC</div>
+        <div class="menu-arrow">
+          <span class="pill pill-success" style="font-size:10px;margin-right:6px;">Verified</span>
+          <i class="ti ti-chevron-right" aria-hidden="true"></i>
+        </div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-icon"><i class="ti ti-building-bank" aria-hidden="true"></i></div>
+        <div class="menu-label">Rekening Bank</div>
+        <div class="menu-arrow"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-icon"><i class="ti ti-shield-check" aria-hidden="true"></i></div>
+        <div class="menu-label">Trust Score Detail</div>
+        <div class="menu-arrow"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-icon"><i class="ti ti-settings" aria-hidden="true"></i></div>
+        <div class="menu-label">Pengaturan</div>
+        <div class="menu-arrow"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
+      </div>
+      <div class="menu-item" style="border-bottom:none">
+        <div class="menu-icon" style="background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.2);">
+          <i class="ti ti-logout" style="color:var(--t-error)" aria-hidden="true"></i>
+        </div>
+        <div class="menu-label" style="color:var(--t-error);">Keluar</div>
+        <div class="menu-arrow"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
+      </div>
+      <div style="height:8px"></div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+      <button class="nav-item active" id="nav-home" onclick="switchTab('home')">
+        <i class="ti ti-home" aria-hidden="true"></i>
+        <span>Feed</span>
+      </button>
+      <button class="nav-item" id="nav-map" onclick="switchTab('home')">
+        <i class="ti ti-map" aria-hidden="true"></i>
+        <span>Peta</span>
+      </button>
+      <div class="nav-fab">
+        <button class="fab-btn" onclick="switchTab('create')">
+          <i class="ti ti-plus" aria-hidden="true"></i>
+        </button>
+      </div>
+      <button class="nav-item" id="nav-wallet" onclick="switchTab('wallet')">
+        <i class="ti ti-wallet" aria-hidden="true"></i>
+        <span>Dompet</span>
+      </button>
+      <button class="nav-item" id="nav-profile" onclick="switchTab('profile')">
+        <i class="ti ti-user" aria-hidden="true"></i>
+        <span>Profil</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const screens = ['home','detail','wallet','profile','create'];
+  const tabMap = {home:'nav-home', wallet:'nav-wallet', profile:'nav-profile'};
+  let curStep = 1;
+
+  function switchTab(tab) {
+    screens.forEach(s => {
+      document.getElementById('screen-'+s).classList.add('hidden');
+    });
+    document.getElementById('screen-'+tab).classList.remove('hidden');
+    document.getElementById('screen-'+tab).scrollTop = 0;
+
+    ['nav-home','nav-map','nav-wallet','nav-profile'].forEach(n => {
+      document.getElementById(n).classList.remove('active');
+    });
+    if (tabMap[tab]) document.getElementById(tabMap[tab]).classList.add('active');
+
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabLabels = ['home','detail','create','wallet','profile'];
+    tabBtns.forEach((b,i) => b.classList.toggle('active', tabLabels[i] === tab));
+
+    if (tab === 'create') { curStep = 1; renderStep(); }
+  }
+
+  function selectCat(el, group) {
+    const row = el.parentElement;
+    row.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function toggleHadiah(el) {
+    el.classList.toggle('sel');
+    const vals = {0:1000,1:5000,2:25000,3:50000,4:150000};
+    const chips = document.querySelectorAll('.hadiah-chip');
+    let total = 0;
+    chips.forEach((c,i) => { if (c.classList.contains('sel')) total += vals[i] || 0; });
+    const fmt = n => 'Rp ' + n.toLocaleString('id-ID');
+    document.getElementById('cost-est').textContent = fmt(total || 0);
+  }
+
+  function renderStep() {
+    for (let i=1;i<=4;i++) {
+      document.getElementById('step-body-'+i).classList.toggle('hidden', i !== curStep);
+      document.getElementById('sd'+i).classList.toggle('done', i <= curStep);
+    }
+    const titles = ['Deskripsi Misi','Kriteria & Deadline','Pilih Hadiah','Konfirmasi'];
+    document.getElementById('step-title').textContent = titles[curStep-1];
+    document.getElementById('step-sub').textContent = 'Langkah ' + curStep + ' dari 4';
+    document.getElementById('btn-next-step').textContent = curStep === 4 ? '🚀 Publish Misi' : 'Lanjut →';
+    document.getElementById('btn-back-step').style.display = curStep === 1 ? 'none' : '';
+  }
+
+  function nextStep() {
+    if (curStep < 4) { curStep++; renderStep(); }
+    else switchTab('home');
+  }
+  function prevStep() {
+    if (curStep > 1) { curStep--; renderStep(); }
+  }
+
+  renderStep();
+  document.getElementById('btn-back-step').style.display = 'none';
+</script>
